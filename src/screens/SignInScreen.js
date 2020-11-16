@@ -1,5 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import styled from 'styled-components/native';
+
+import { FirebaseContext } from '../context/FirebaseContext';
+import { UserContext } from '../context/UserContext';
 
 import Text from '../components/Text';
 
@@ -7,6 +10,32 @@ const SignInScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const firebase = useContext(FirebaseContext);
+  const [_, setUser] = useContext(UserContext);
+
+  const signIn = async () => {
+    setIsLoading(true);
+
+    try {
+      await firebase.signIn(email, password);
+
+      const uid = firebase.getCurrentUser().uid;
+
+      const userInfo = await firebase.getUserInfo(uid);
+
+      setUser({
+        username: userInfo.username,
+        email: userInfo.email,
+        uid,
+        profilePhotoUrl: userInfo.profilePhotoUrl,
+        isLoggedIn: true,
+      });
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <Container>
@@ -43,7 +72,7 @@ const SignInScreen = ({ navigation }) => {
         </AuthContainer>
       </Auth>
 
-      <SignInContainer disabled={isLoading}>
+      <SignInContainer onPress={signIn} disabled={isLoading}>
         {isLoading ? (
           <Loading />
         ) : (
