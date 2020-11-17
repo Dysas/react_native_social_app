@@ -13,7 +13,7 @@ const LoadingScreen = () => {
 
   useEffect(() => {
     setTimeout(async () => {
-      const user = firebase.getCurrentUser();
+      const user = await firebase.getCurrentUser();
       if (user) {
         const userInfo = await firebase.getUserInfo(user.uid);
         setUser({
@@ -24,7 +24,7 @@ const LoadingScreen = () => {
           profilePhotoUrl: userInfo.profilePhotoUrl,
         });
       } else {
-        etUser((state) => ({
+        setUser((state) => ({
           ...state,
           isLoggedIn: false,
         }));
